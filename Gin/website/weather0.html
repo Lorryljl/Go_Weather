@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Forecast Page</title>
+    <link rel="stylesheet" href="/static/weather/weather.css">
+    <link rel="stylesheet" href="/static/pubic.css">
+    <link rel="stylesheet" href="../web/static/weather/weather.css">
+    <link rel="stylesheet" href="../web/static/public.css">
+    <script src="../web/static/weather/weather.js"></script>
+    <script src="/static/weather/weather.js"></script>
+</head>
+<body>
+
+<!--显示-->
+<script src="../web/static/public.js"></script>
+<script src="../web/static/public.js"></script>
+<!--运行-->
+<script src="/static/public.js"></script>
+<script src="/static/public.js"></script>
+
+<div class="container">
+
+    <h1>天气查询</h1>
+    <div class="form-row">
+        <form action="/getWeather" method="GET">
+        <div class="form-group">
+            <label for="city-select">城市/县城:</label>
+            <input list="cities" id="city-select" name="city">
+            <datalist id="cities">
+                {{range .cities}}
+                <option value="{{.CityName}}">{{.CityCode}}</option>
+                {{end}}
+            </datalist>
+        </div>
+        </form>
+        <div class="form-group">
+            <label for="baseAll">请选择天气类型:</label>
+            <select id="baseAll" name="weatherType">
+                <option value="Base">实况天气</option>
+                <option value="All">预报天气</option>
+            </select>
+        </div>
+    </div>
+
+
+        <div class="button-container">
+            <input type="button" value="查询" id="search-btn" onclick="fetchData()">
+        </div>
+
+
+
+    <div class="weather-info" id="weather-info">
+        <!--这里显示天气信息-->
+    </div>
+    <div class="forecast">
+        <table>
+            <thead>
+            <tr>
+                <th>日期</th>
+                <th>星期几</th>
+                <th>白天天气现象</th>
+                <th>晚上天气现象</th>
+                <th>白天温度</th>
+                <th>晚上温度</th>
+                <th>白天风向</th>
+                <th>晚上风向</th>
+                <th>白天风力</th>
+                <th>晚上风力</th>
+            </tr>
+            </thead>
+            <tbody id="forecast-tbody">
+            <!--这里会动态生成天气预报-->
+            </tbody>
+        </table>
+    </div>
+    <input type="button" value="发送至邮箱">
+</div>
+
+<script>
+    // JavaScript 代码
+    function fetchData() {
+        const weatherTypeMap={
+            'Base':"base",
+            'All':"all"
+        };
+        const citySelect =document.getElementById('city-select')
+        const city = citySelect.value;
+
+        const selectedWeatherType = document.getElementById('baseAll').value;
+        const weatherType = weatherTypeMap[selectedWeatherType];
+
+        if (!city) {
+            alert("请选择城市！");
+            return;
+        }
+
+        // 构造请求的 URL
+        const url = `https://restapi.amap.com/v3/weather/weatherInfo?city=${city}&key=049a159604b07b805722006015eedf50&extensions=${weatherType}`;
+        const url1="https://restapi.amap.com/v3/weather/weatherInfo?city=440605&key=049a159604b07b805722006015eedf50&extensions=all"
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                // 更新天气信息
+                updateWeatherInfo(data);
+                // 更新天气预报
+                updateForecast(data.forecasts);
+            })
+            .catch(error => {
+                console.error("Error fetching weather data:", error);
+                alert("获取天气数据失败！");
+            });
+    }
+
+    function updateWeatherInfo(data) {
+        const weatherInfoDiv = document.getElementById('weather-info');
+        if (data.status === "1" && data.forecasts && data.forecasts.length > 0) {
+            const forecast = data.forecasts[0];
+            weatherInfoDiv.innerHTML = `
+                <p><strong>城市:</strong> ${forecast.city}</p>
+                <p><strong>省份名称:</strong> ${forecast.province}</p>
+                <p><strong>预报发布时间:</strong> ${forecast.reporttime}</p>
+            `;
+        } else {
+
+            weatherInfoDiv.innerHTML = `<p>无法获取天气信息</p>`;
+        }
+    }
+
+    function updateForecast(forecasts) {
+        const tbody = document.getElementById('forecast-tbody');
+        tbody.innerHTML = "";  // 清空之前的内容
+
+        if (forecasts && forecasts.length > 0) {
+            const forecast = forecasts[0];  // 假设只需要第一个预报（你可以根据实际情况修改）
+
+            forecast.casts.forEach(cast => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${cast.date}</td>
+                    <td>${cast.week}</td>
+                    <td>${cast.dayweather}</td> <!-- 修改字段名 -->
+                    <td>${cast.nightweather}</td> <!-- 修改字段名 -->
+                    <td>${cast.daytemp}°C</td> <!-- 修改字段名 -->
+                    <td>${cast.nighttemp}°C</td> <!-- 修改字段名 -->
+                    <td>${cast.daywind}</td> <!-- 修改字段名 -->
+                    <td>${cast.nightwind}</td> <!-- 修改字段名 -->
+                    <td>${cast.daypower}</td> <!-- 修改字段名 -->
+                    <td>${cast.nightpower}</td> <!-- 修改字段名 -->
+                `;
+                tbody.appendChild(row);
+            });
+        } else {
+            tbody.innerHTML = `<tr><td colspan="10">无法获取预报数据</td></tr>`;
+        }
+    }
+
+
+    //获取城市列表并填充下拉框
+    fetch('/getCities')
+    .then(response=>response.json())
+    .then(cities=>{
+        const citySelect=document.getElementById('city-select');
+        cities.forEach((city)=>{
+
+            const option =document.createElement('option');
+            option.value=city;
+            option.textContent=city;
+            citySelect.appendChild(option);
+        });
+    })
+    .catch(error=>console.error("error fetching cities:",error))
+
+</script>
+</body>
+
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--显示-->
+    <link rel="stylesheet" href="../web/static/Email/Email.css">
+    <!--运行-->
+    <link rel="stylesheet" href="static/Email/Email.css">
+    <title>Weather SendTo E-mail Page</title>
+</head>
+<body>
+
+    <div class="container">
+        <h1>发送至邮箱</h1>
+
+        <div class="form-group">
+            <label for="SendEmail">发送邮箱:</label>
+            <input type="text" id="SendEmail" placeholder="请输入你想发送的邮箱">
+        </div>
+
+        <div class="form-group">
+            <label for="ReceiveEmail">接收邮箱:</label>
+            <input type="text" id="ReceiveEmail" placeholder="请输入你想接收的邮箱">
+        </div>
+
+        <div class="form-group">
+            <label for="city-input">城市/县城:</label>
+            <input type="text" id="city-input" name="city" placeholder="请输入你想查询的城市">
+        </div>
+
+        <div class="form-group">
+            <label for="WishText">留言:</label>
+            <input type="text" id="WishText" placeholder="请输入你想给ta的留言">
+        </div>
+
+        <div class="form-group">
+            <label for="baseAll">请选择天气类型:</label>
+            <select id="baseAll" name="weatherType">
+                <option value="Base">实况天气</option>
+                <option value="All">预报天气</option>
+            </select>
+        </div>
+        <form action="/getWea" method="post">
+        <button type="submit">查询</button>
+        </form>
+    </div>
+
+
+<!--显示-->
+<script src="../web/static/public.js"></script>
+<script src="../web/static/public.js"></script>
+<!--运行-->
+<script src="/static/public.js"></script>
+<script src="/static/public.js"></script>
+</body>
+</html>
